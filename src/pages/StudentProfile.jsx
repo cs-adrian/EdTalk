@@ -1,8 +1,53 @@
 import React from "react";
+import { useEffect, useState } from "react";
+import { doc, getDoc} from "firebase/firestore"; 
+import { db } from "../firebase";
+import { useAuth } from "../context/AuthContext";
 import Header from "../components/Header";
 import "../styles/student_profile_style.css";
 
+function getInitials(name) {
+  const words = name.trim().split(/\s+/);
+  if (words.length === 0) return "";
+
+  const suffixes = ["jr.", "sr.", "ii", "iii", "iv"];
+  const lastWord = words[words.length - 1].toLowerCase();
+  const lastInitial = suffixes.includes(lastWord) && words.length > 1
+    ? words[words.length - 2][0]
+    : words[words.length - 1][0];
+
+  return (words[0][0] + lastInitial).toUpperCase();
+}
+
 function StudentProfile() {
+  const { user } = useAuth();
+  const [studentData, setStudentData] = useState(null);
+
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      if (!user) return;
+
+      try {
+        const docRef = doc(db, "students", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setStudentData(docSnap.data());
+        } else {
+          console.error("No student document found for UID: ", user.uid);
+        }
+      } catch (error) {
+        console.error("Error fetching student data: ", error);
+      }
+    };
+
+    fetchStudentData();
+  }, [user]);
+
+  if (!studentData) {
+    return <div>Loading student profile...</div>;
+  }
+
+
   const handleBack = () => {
     window.history.back();
   };
@@ -24,10 +69,10 @@ function StudentProfile() {
         <div className="profile-content">
           <div className="profile-card">
             <div className="profile-picture">
-              <div className="big_initials">JS</div>
+              <div className="big_initials">{getInitials(studentData.fullName)}</div>
             </div>
             <div className="profile-name">
-              <div className="profile_name">John Smith</div>
+              <div className="profile_name">{studentData.name}</div>
               <div className="student">Student</div>
             </div>
             <div className="stats">
@@ -38,7 +83,7 @@ function StudentProfile() {
               </div>
               <div className="courses-stat">
                 <div className="current-courses">Current Courses</div>
-                <div className="current_num">5</div>
+                <div className="current_num">{studentData.currentSubjects.length}</div>
               </div>
               <div className="divider"></div>
             </div>
@@ -57,23 +102,23 @@ function StudentProfile() {
                 <div className="info-row">
                   <div className="info-item">
                     <div className="student_info">Full Name</div>
-                    <div className="student_name">John Alexander Smith</div>
+                    <div className="student_name">{studentData.fullName}</div>
                   </div>
                   <div className="info-item">
                     <div className="student_info">Student ID</div>
-                    <div className="student_num">202301042</div>
+                    <div className="student_num">{studentData.studentId}</div>
                   </div>
                 </div>
                 <div className="info-row">
                   <div className="info-item">
                     <div className="student_info">Email Address</div>
                     <div className="student_email">
-                      john.smith@university.edu
+                      {studentData.email}
                     </div>
                   </div>
                   <div className="info-item">
                     <div className="student_info">Phone Number</div>
-                    <div className="phone_num">(+63) 9123 456 7890</div>
+                    <div className="phone_num">{studentData.phoneNumber}</div>
                   </div>
                 </div>
               </div>
@@ -86,22 +131,22 @@ function StudentProfile() {
                   <div className="info-item">
                     <div className="student_info">Program</div>
                     <div className="student_program">
-                      Bachelor of Science in Computer Science
+                      {studentData.program}
                     </div>
                   </div>
                   <div className="info-item">
                     <div className="student_info">Year Level</div>
-                    <div className="year_level">Junior (3rd Year)</div>
+                    <div className="year_level">{studentData.yearLevel}</div>
                   </div>
                 </div>
                 <div className="info-row">
                   <div className="info-item">
                     <div className="student_info">Section</div>
-                    <div className="student_section">CS-301-A</div>
+                    <div className="student_section">{studentData.section}</div>
                   </div>
                   <div className="info-item">
                     <div className="student_info">Academic Advisor</div>
-                    <div className="student_advisor">Dr. Michael Chen</div>
+                    <div className="student_advisor">{studentData.academicAdvisor}</div>
                   </div>
                 </div>
               </div>
@@ -110,47 +155,21 @@ function StudentProfile() {
             <div className="subjects-card">
               <div className="current-subjects">Current Subjects</div>
               <div className="subjects-list">
-                {[
-                  {
-                    subject: "CS301: Data Structures and Algorithms",
-                    educator: "Dr. Patricia Johnson",
-                    status: "submitted",
-                  },
-                  {
-                    subject: "CS315: Database Systems",
-                    educator: "Dr. Robert Brown",
-                    status: "pending",
-                  },
-                  {
-                    subject: "CS350: Software Engineering",
-                    educator: "Dr. Sarah Williams",
-                    status: "submitted",
-                  },
-                  {
-                    subject: "MATH301: Discrete Mathematics",
-                    educator: "Dr. James Wilson",
-                    status: "pending",
-                  },
-                  {
-                    subject: "ENG210: Technical Writing",
-                    educator: "Prof. Elizabeth Taylor",
-                    status: "pending",
-                  },
-                ].map((course, index) => (
+                {studentData.currentSubjects?.map((course, index) => (
                   <div key={index} className="subject-item">
                     <div className="subject-info">
-                      <div className="educator_subject">{course.subject}</div>
-                      <div className="educator_name">{course.educator}</div>
+                      <div className="educator_subject">{course.courseCode}: {course.courseName}</div>
+                      <div className="educator_name">{course.professor}</div>
                     </div>
                     <div
                       className={
-                        course.status === "submitted"
+                        course.status === "Submitted"
                           ? "status-badge"
                           : "pending_status_badge"
                       }
                     >
-                      <div className={course.status === "submitted" ? "feedback-submitted" : "pending-feedback"}>
-                        {course.status === "submitted" ? "Feedback Submitted" : "Pending Feedback"}
+                      <div className={course.feedbackStatus === "Submitted" ? "feedback-submitted" : "pending-feedback"}>
+                        {course.feedbackStatus === "Submitted" ? "Feedback Submitted" : "Pending Feedback"}
                       </div>
                     </div>
                   </div>
