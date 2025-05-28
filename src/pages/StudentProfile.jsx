@@ -1,6 +1,5 @@
-import React from "react";
-import { useEffect, useState } from "react";
-import { doc, getDoc} from "firebase/firestore"; 
+import React, { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import Header from "../components/Header";
@@ -22,31 +21,61 @@ function getInitials(name) {
 function StudentProfile() {
   const { user } = useAuth();
   const [studentData, setStudentData] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStudentData = async () => {
+    const fetchStudentDataAndCourses = async () => {
       if (!user) return;
 
       try {
-        const docRef = doc(db, "students", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setStudentData(docSnap.data());
-        } else {
-          console.error("No student document found for UID: ", user.uid);
+        const studentDocRef = doc(db, "students", user.uid);
+        const studentSnap = await getDoc(studentDocRef);
+
+        if (!studentSnap.exists()) {
+          console.error("Student document not found");
+          return;
         }
+
+        const student = studentSnap.data();
+        setStudentData(student);
+
+        const enrolledCourses = student.enrolledCourses || [];
+        const courseDataList = [];
+
+        for (const courseId of enrolledCourses) {
+          const courseDoc = await getDoc(doc(db, "courses", courseId));
+
+          if (courseDoc.exists()) {
+            const courseData = courseDoc.data();
+
+            // Fetch feedback status
+            const feedbackDocId = `${student.studentId}_${courseId}`;
+            const feedbackRef = doc(db, "feedbacks", feedbackDocId);
+
+            const feedbackSnap = await getDoc(feedbackRef);
+            const feedbackStatus = feedbackSnap.exists()
+              ? feedbackSnap.data().status
+              : "Pending";
+
+            courseData.feedbackStatus = feedbackStatus;
+            courseDataList.push(courseData);
+          }
+        }
+
+        setCourses(courseDataList);
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching student data: ", error);
+        console.error("Error loading profile data:", error);
       }
     };
 
-    fetchStudentData();
+    fetchStudentDataAndCourses();
   }, [user]);
 
-  if (!studentData) {
+  if (loading || !studentData) {
     return <div>Loading student profile...</div>;
   }
-
 
   const handleBack = () => {
     window.history.back();
@@ -58,9 +87,10 @@ function StudentProfile() {
 
       <div className="student-profile-page">
         <div className="back-button" onClick={handleBack}>
-            <img className="back-icon" src="/assets/arrow_back.svg" alt="Back" />
-            <span>Back</span>
+          <img className="back-icon" src="/assets/arrow_back.svg" alt="Back" />
+          <span>Back</span>
         </div>
+
         <div className="my-profile">My Profile</div>
         <div className="view-and-manage-your-account-information">
           View and manage your account information
@@ -79,17 +109,15 @@ function StudentProfile() {
               <div className="divider"></div>
               <div className="feedback-stat">
                 <div className="feedback-given">Feedback Given</div>
-                <div className="feedback_num">5</div>
+                <div className="feedback_num">
+                  5
+                </div>
               </div>
               <div className="courses-stat">
                 <div className="current-courses">Current Courses</div>
-                <div className="current_num">{studentData.currentSubjects.length}</div>
+                <div className="current_num">{courses.length}</div>
               </div>
               <div className="divider"></div>
-            </div>
-            <div className="edit-profile-button">
-              <img className="edit-icon" src="/assets/edit-icon0.svg" alt="Edit" />
-              <div className="edit-profile">Edit Profile</div>
             </div>
           </div>
 
@@ -112,9 +140,7 @@ function StudentProfile() {
                 <div className="info-row">
                   <div className="info-item">
                     <div className="student_info">Email Address</div>
-                    <div className="student_email">
-                      {studentData.email}
-                    </div>
+                    <div className="student_email">{studentData.email}</div>
                   </div>
                   <div className="info-item">
                     <div className="student_info">Phone Number</div>
@@ -130,9 +156,7 @@ function StudentProfile() {
                 <div className="info-row">
                   <div className="info-item">
                     <div className="student_info">Program</div>
-                    <div className="student_program">
-                      {studentData.program}
-                    </div>
+                    <div className="student_program">{studentData.program}</div>
                   </div>
                   <div className="info-item">
                     <div className="student_info">Year Level</div>
@@ -155,21 +179,29 @@ function StudentProfile() {
             <div className="subjects-card">
               <div className="current-subjects">Current Subjects</div>
               <div className="subjects-list">
-                {studentData.currentSubjects?.map((course, index) => (
+                {courses.map((course, index) => (
                   <div key={index} className="subject-item">
                     <div className="subject-info">
-                      <div className="educator_subject">{course.courseCode}: {course.courseName}</div>
-                      <div className="educator_name">{course.professor}</div>
+                      <div className="educator_subject">
+                        {course.courseCode}: {course.courseName}
+                      </div>
+                      <div className="educator_name">{course.professorId}</div>
                     </div>
                     <div
                       className={
-                        course.status === "Submitted"
+                        course.feedbackStatus === "submitted"
                           ? "status-badge"
                           : "pending_status_badge"
                       }
                     >
-                      <div className={course.feedbackStatus === "Submitted" ? "feedback-submitted" : "pending-feedback"}>
-                        {course.feedbackStatus === "Submitted" ? "Feedback Submitted" : "Pending Feedback"}
+                      <div className={
+                        course.feedbackStatus === "submitted"
+                          ? "feedback-submitted"
+                          : "pending-feedback"
+                      }>
+                        {course.feedbackStatus === "submitted"
+                          ? "Feedback Submitted"
+                          : "Pending Feedback"}
                       </div>
                     </div>
                   </div>
