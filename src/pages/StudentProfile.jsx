@@ -110,7 +110,7 @@ function StudentProfile() {
               <div className="feedback-stat">
                 <div className="feedback-given">Feedback Given</div>
                 <div className="feedback_num">
-                  5
+                  {courses.filter(c => c.feedbackStatus === "submitted").length}
                 </div>
               </div>
               <div className="courses-stat">
