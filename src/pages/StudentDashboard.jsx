@@ -47,7 +47,8 @@ function StudentDashboard() {
   );
 
   const handleAddFeedback = (courseId) => {
-    navigate(`/feedback-form?courseId=${courseId}`);
+    navigate("/feedback-form", { state: { courseId } });
+
   };
 
   const handleEditFeedback = (courseId) => {

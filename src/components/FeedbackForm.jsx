@@ -1,13 +1,56 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "./Header";
+import { 
+  fetchProfessorByProfessorId 
+} from "../services/studentDataService";
+import { doc, getDoc } from "firebase/firestore";
+import { db, auth } from "../firebase";
 import "../styles/feedback_form.css";
 
 function FeedbackForm() {
+  const location = useLocation()
+  const { courseId } = location.state || {}
+
+  const [course, setCourse] = useState(null);
+  const [professor, setProfessor] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
   const [answers, setAnswers] = useState({});
   const [comments, setComments] = useState("");
   const [highlightedQuestions, setHighlightedQuestions] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!courseId) return;
+
+      try {
+        // Fetch course data
+        const courseRef = doc(db, "courses", courseId);
+        const courseSnap = await getDoc(courseRef);
+
+        if (!courseSnap.exists()) {
+          console.error("Course not found");
+          return;
+        }
+
+        const courseData = courseSnap.data();
+        setCourse(courseData);
+
+        // Fetch professor data
+        const professorData = await fetchProfessorByProfessorId(courseData.professorId);
+        setProfessor(professorData);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading course or professor:", error);
+      }
+    };
+
+    fetchData();
+  }, [courseId]);
+
+
 
   const handleRatingClick = (question, value) => {
     setAnswers((prev) => ({ ...prev, [question]: value }));
@@ -57,9 +100,9 @@ function FeedbackForm() {
           <span>Back</span>
         </div>
         <div className="educator-info">
-          <span className="educator-name">Dr. Robert Browns</span>
+          <span className="educator-name">{professor ? professor.name : "Loading..."}</span>
           <span className="educator-details">
-            College of Physical Science | Mathematics
+            {professor && professor.department} | {course && course.courseName}
           </span>
         </div>
       </div>

@@ -1,6 +1,6 @@
 // src/services/studentDataService.js
 
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, query, where, collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 
 // Fetch student profile document by UID
@@ -45,4 +45,20 @@ export async function fetchEnrolledCoursesWithFeedback(student) {
   }
 
   return courseDataList;
+}
+
+export async function fetchProfessorByProfessorId(professorId) {
+  const q = query(
+    collection(db, "professors"),
+    where("professorId", "==", professorId)
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    throw new Error("Professor not found");
+  }
+
+  // Assuming professorId is unique, just return the first result
+  return querySnapshot.docs[0].data();
 }
