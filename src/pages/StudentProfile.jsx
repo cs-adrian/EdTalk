@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import Header from "../components/Header";
 import "../styles/student_profile_style.css";
 
-function getInitials(name) {
+export function getInitials(name) {
   const words = name.trim().split(/\s+/);
   if (words.length === 0) return "";
 

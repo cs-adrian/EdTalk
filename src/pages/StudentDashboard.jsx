@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { db, auth } from "../firebase"; // ensure firebase is initialized
+import { db, auth } from "../firebase"; 
 import {
   doc,
   getDoc,
@@ -17,6 +17,7 @@ function StudentDashboard() {
   const [search, setSearch] = useState("");
   const [coursesData, setCoursesData] = useState([]);
   const [studentId, setStudentId] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,6 +49,7 @@ function StudentDashboard() {
         }
 
         setCoursesData(courseList);
+        setLoading(false);
       } catch (err) {
         console.error("Error loading dashboard data:", err);
       }
@@ -55,6 +57,10 @@ function StudentDashboard() {
 
     fetchData();
   }, []);
+
+  if (loading || !coursesData) {
+    return <div>Loading Dashboard...</div>;
+  }
 
   const filteredCourses = coursesData.filter(
     (c) =>
@@ -185,7 +191,7 @@ function StudentDashboard() {
           })}
 
           {filteredCourses.length === 0 && (
-            <div className="no-results">No professors found.</div>
+            <div className="no-results">No courses or professors found.</div>
           )}
         </div>
       </div>
