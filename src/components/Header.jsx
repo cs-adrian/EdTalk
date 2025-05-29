@@ -10,6 +10,7 @@ function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [studentName, setStudentName] = useState("");
+  const [studentInitials, setStudentInitials] = useState("")
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -38,6 +39,7 @@ function Header() {
         if (studentDocSnap.exists()) {
           const student = studentDocSnap.data();
           setStudentName(student.name)
+          setStudentInitials(getInitials(student.name))
         }
       }
     }
@@ -173,7 +175,7 @@ function Header() {
 
         <div className="user-menu" onClick={toggleDropdown} ref={dropdownRef}>
           <div className="avatar">
-            <div className="initials">{getInitials(studentName)}</div>
+            <div className="initials">{studentInitials}</div>
           </div>
           <div className="user_name">{studentName}</div>
 
