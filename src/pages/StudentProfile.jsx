@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import Header from "../components/Header";
 import "../styles/student_profile_style.css";
+import {
+  fetchStudentProfile,
+  fetchEnrolledCoursesWithFeedback,
+} from "../services/studentDataService";
 
 export function getInitials(name) {
   const words = name.trim().split(/\s+/);
@@ -25,61 +27,31 @@ function StudentProfile() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStudentDataAndCourses = async () => {
+    const loadData = async () => {
       if (!user) return;
 
       try {
-        const studentDocRef = doc(db, "students", user.uid);
-        const studentSnap = await getDoc(studentDocRef);
-
-        if (!studentSnap.exists()) {
-          console.error("Student document not found");
-          return;
-        }
-
-        const student = studentSnap.data();
+        const student = await fetchStudentProfile(user.uid);
         setStudentData(student);
 
-        const enrolledCourses = student.enrolledCourses || [];
-        const courseDataList = [];
-
-        for (const courseId of enrolledCourses) {
-          const courseDoc = await getDoc(doc(db, "courses", courseId));
-
-          if (courseDoc.exists()) {
-            const courseData = courseDoc.data();
-
-            // Fetch feedback status
-            const feedbackDocId = `${student.studentId}_${courseId}`;
-            const feedbackRef = doc(db, "feedbacks", feedbackDocId);
-
-            const feedbackSnap = await getDoc(feedbackRef);
-            const feedbackStatus = feedbackSnap.exists()
-              ? feedbackSnap.data().status
-              : "Pending";
-
-            courseData.feedbackStatus = feedbackStatus;
-            courseDataList.push(courseData);
-          }
-        }
-
-        setCourses(courseDataList);
-        setLoading(false);
+        const courseList = await fetchEnrolledCoursesWithFeedback(student);
+        setCourses(courseList);
       } catch (error) {
-        console.error("Error loading profile data:", error);
+        console.error("Error loading profile data: ", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchStudentDataAndCourses();
+    loadData()
   }, [user]);
+    
 
   if (loading || !studentData) {
     return <div>Loading student profile...</div>;
   }
 
-  const handleBack = () => {
-    window.history.back();
-  };
+  const handleBack = () => window.history.back();
 
   return (
     <div className="student-profile-container">
