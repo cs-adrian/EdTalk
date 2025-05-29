@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db} from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  fetchStudentProfile,
+  fetchEnrolledCoursesWithFeedback,
+} from "../services/studentDataService";
 import { useAuth } from "../context/AuthContext";
 import { getInitials } from "../pages/StudentProfile";
 
@@ -32,21 +35,18 @@ function Header() {
   }, []);
 
   useEffect(() => {
-    const fetchStudentData = async () => {
+    const loadData = async () => {
       if (user) {
-        const studentDocRef = doc(db, "students", user.uid);
-        const studentDocSnap = await getDoc(studentDocRef);
-        if (studentDocSnap.exists()) {
-          const student = studentDocSnap.data();
-          setStudentName(student.name)
-          setStudentInitials(getInitials(student.name))
-        }
+        const student = await fetchStudentProfile(user.uid);
+        setStudentName(student.name)
+        setStudentInitials(getInitials(student.name))
       }
     }
 
-    fetchStudentData()
+    loadData()
   }, [user]);
 
+  
   return (
     <>
       <style>{`
