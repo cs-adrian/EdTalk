@@ -82,7 +82,8 @@ function StudentProfile() {
               <div className="feedback-stat">
                 <div className="feedback-given">Feedback Given</div>
                 <div className="feedback_num">
-                  {courses.filter(c => c.feedbackStatus === "submitted").length}
+                  {courses.filter(c => c.feedback && c.feedback.status === "submitted").length}
+
                 </div>
               </div>
               <div className="courses-stat">
@@ -161,17 +162,17 @@ function StudentProfile() {
                     </div>
                     <div
                       className={
-                        course.feedbackStatus === "submitted"
+                        course.feedback && course.feedback.status === "submitted"
                           ? "status-badge"
                           : "pending_status_badge"
                       }
                     >
                       <div className={
-                        course.feedbackStatus === "submitted"
+                        course.feedback && course.feedback.status === "submitted"
                           ? "feedback-submitted"
                           : "pending-feedback"
                       }>
-                        {course.feedbackStatus === "submitted"
+                        {course.feedback && course.feedback.status === "submitted"
                           ? "Feedback Submitted"
                           : "Pending Feedback"}
                       </div>

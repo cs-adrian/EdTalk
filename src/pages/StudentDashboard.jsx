@@ -2,13 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase"; 
 import {
-  doc,
-  getDoc,
-  getDocs,
-  collection,
-  query,
-  where
-} from "firebase/firestore";
+  fetchStudentProfile,
+  fetchEnrolledCoursesWithFeedback,
+} from "../services/studentDataService";
 import Header from "../components/Header";
 import "../styles/dashboard_style.css";
 
@@ -25,30 +21,12 @@ function StudentDashboard() {
       if (!user) return;
 
       try {
-        const studentRef = doc(db, "students", user.uid);
-        const studentSnap = await getDoc(studentRef);
-        if (!studentSnap.exists()) throw new Error("Student data not found");
+        const student = await fetchStudentProfile(user.uid);
+        setStudentId(student.studentId);
 
-        const sid = studentSnap.data().studentId;
-        setStudentId(sid);
+        const courses = await fetchEnrolledCoursesWithFeedback(student);
 
-        const courseSnap = await getDocs(collection(db, "courses"));
-        const courseList = [];
-
-        for (const courseDoc of courseSnap.docs) {
-          const course = courseDoc.data();
-          const feedbackId = `${sid}_${courseDoc.id}`;
-          const feedbackRef = doc(db, "feedbacks", feedbackId);
-          const feedbackSnap = await getDoc(feedbackRef);
-
-          courseList.push({
-            courseId: courseDoc.id,
-            ...course,
-            feedback: feedbackSnap.exists() ? feedbackSnap.data() : null,
-          });
-        }
-
-        setCoursesData(courseList);
+        setCoursesData(courses);
         setLoading(false);
       } catch (err) {
         console.error("Error loading dashboard data:", err);
@@ -121,7 +99,7 @@ function StudentDashboard() {
         <div className="professor-list">
           {filteredCourses.map((course) => {
             const feedback = course.feedback;
-            const status = feedback ? "submitted" : "pending";
+            const status = feedback.status === "submitted" ? "submitted" : "pending";
             const preview = feedback?.comment?.length > 100
               ? feedback.comment.slice(0, 100) + "..."
               : feedback?.comment || "";

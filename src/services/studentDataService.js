@@ -1,4 +1,5 @@
-// src/services/studentService.js
+// src/services/studentDataService.js
+
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -14,27 +15,33 @@ export async function fetchStudentProfile(uid) {
   return docSnap.data();
 }
 
-// Fetch list of enrolled courses for a student with feedback status
+// Fetch list of enrolled courses for a student with full feedback object
 export async function fetchEnrolledCoursesWithFeedback(student) {
   const enrolledCourses = student.enrolledCourses || [];
   const courseDataList = [];
 
   for (const courseId of enrolledCourses) {
-    const courseDoc = await getDoc(doc(db, "courses", courseId));
-    if (!courseDoc.exists()) continue;
+    const courseDocRef = doc(db, "courses", courseId);
+    const courseDocSnap = await getDoc(courseDocRef);
 
-    const courseData = courseDoc.data();
+    if (!courseDocSnap.exists()) continue;
+
+    const courseData = courseDocSnap.data();
 
     // Construct feedback document ID: `${studentId}_${courseId}`
     const feedbackDocId = `${student.studentId}_${courseId}`;
-    const feedbackRef = doc(db, "feedbacks", feedbackDocId);
-    const feedbackSnap = await getDoc(feedbackRef);
+    const feedbackDocRef = doc(db, "feedbacks", feedbackDocId);
+    const feedbackDocSnap = await getDoc(feedbackDocRef);
 
-    courseData.feedbackStatus = feedbackSnap.exists()
-      ? feedbackSnap.data().status
-      : "Pending";
+    const feedbackData = feedbackDocSnap.exists()
+      ? feedbackDocSnap.data()
+      : null;
 
-    courseDataList.push(courseData);
+    courseDataList.push({
+      courseId,
+      ...courseData,
+      feedback: feedbackData,
+    });
   }
 
   return courseDataList;
