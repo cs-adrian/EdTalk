@@ -5,6 +5,7 @@ import {
   fetchStudentProfile,
   fetchEnrolledCoursesWithFeedback,
 } from "../services/studentDataService";
+import { clearFeedback } from "../services/feedbackDataService";
 import Header from "../components/Header";
 import "../styles/dashboard_style.css";
 
@@ -60,15 +61,25 @@ function StudentDashboard() {
     const confirmed = window.confirm("Are you sure you want to delete this feedback?");
     if (confirmed) {
       try {
-        const feedbackId = `${studentId}_${courseId}`;
-        await deleteDoc(doc(db, "feedbacks", feedbackId));
+        await clearFeedback(studentId, courseId);
+
+        // Update local UI to reflect the cleared feedback
         setCoursesData(prev =>
           prev.map(c =>
-            c.courseId === courseId ? { ...c, feedback: null } : c
+            c.courseId === courseId ? {
+              ...c,
+              feedback: {
+                ...c.feedback,
+                comment: "",
+                responses: [],
+                status: "pending",
+                rating: "0"
+              }
+            } : c
           )
         );
       } catch (err) {
-        alert("Failed to delete feedback.");
+        alert("Failed to clear feedback.");
         console.error(err);
       }
     }

@@ -37,6 +37,22 @@ export async function fetchFeedbackByStudentAndCourse(studentId, courseId) {
   return feedbackSnap.data();
 }
 
+// Clear feedback content but keep the document
+export async function clearFeedback(studentId, courseId) {
+  const feedbackId = `${studentId}_${courseId}`;
+  const feedbackDocRef = doc(db, "feedbacks", feedbackId);
+
+  const clearedData = {
+    comment: "",
+    responses: [],
+    status: "pending",
+    rating: "0",
+  };
+
+  await setDoc(feedbackDocRef, clearedData, { merge: true });
+}
+
+
 function calculateAverageRating(responses) {
   if (!responses || responses.length === 0) return 0;
 
