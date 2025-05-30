@@ -1,23 +1,87 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "./Header";
+import { fetchStudentProfile, fetchProfessorByProfessorId } from "../services/studentDataService";
+import { fetchFeedbackByStudentAndCourse, submitFeedback } from "../services/feedbackDataService";
+import { doc, getDoc } from "firebase/firestore";
+import { db, auth } from "../firebase";
 import "../styles/feedback_form.css";
 
 function FeedbackForm() {
-  const navigate = useNavigate();
+  const location = useLocation();
+  const { courseId, isEdit } = location.state || {};
+
+  const [studentId, setStudentId] = useState(null);
+  const [course, setCourse] = useState(null);
+  const [professor, setProfessor] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState({});
   const [comments, setComments] = useState("");
   const [highlightedQuestions, setHighlightedQuestions] = useState([]);
+  const [questions] = useState([
+    "Was the pacing of the course appropriate?",
+    "Were classes conducted according to the schedule?",
+    "Were the learning objectives clearly communicated?",
+    "Was the course syllabus clear and well-structured?",
+  ]);
 
-  const handleRatingClick = (question, value) => {
-    setAnswers((prev) => ({ ...prev, [question]: value }));
-    setHighlightedQuestions((prev) => prev.filter((q) => q !== question));
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const user = auth.currentUser;
+      if (!courseId || !user) return;
+
+      try {
+        const student = await fetchStudentProfile(user.uid);
+        setStudentId(student.studentId);
+
+        if (student) {console.log(`STUDENT DATA IS VALID. ID: ${student.studentId}`)}
+        
+
+        const courseSnap = await getDoc(doc(db, "courses", courseId));
+        if (!courseSnap.exists()) return console.error("Course not found");
+
+        const courseData = courseSnap.data();
+        setCourse(courseData);
+
+        const professorData = await fetchProfessorByProfessorId(courseData.professorId);
+        setProfessor(professorData);
+
+        if (professorData) {console.log("PROFESSOR DATA IS VALID")}
+
+        const feedbackData = await fetchFeedbackByStudentAndCourse(student.studentId, courseId);
+        if (feedbackData) {
+          console.log("FEEDBACK DATA IS VALID")
+          setComments(feedbackData.comment || "");
+          const mappedAnswers = {};
+          feedbackData.responses?.forEach((resp, index) => {
+            mappedAnswers[index + 1] = parseInt(resp.rating);
+          });
+          setAnswers(mappedAnswers);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Error loading data:", err);
+      }
+    };
+
+    fetchData();
+  }, [courseId]);
+
+  const handleRatingClick = (questionNum, value) => {
+    setAnswers((prev) => ({ ...prev, [questionNum]: value }));
+    setHighlightedQuestions((prev) => prev.filter((q) => q !== questionNum));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const unanswered = [1, 2, 3, 4].filter((q) => !answers[q]);
+    const unanswered = questions
+      .map((_, idx) => idx + 1)
+      .filter((qNum) => !answers[qNum]);
+
     if (unanswered.length > 0) {
       setHighlightedQuestions(unanswered);
       alert("Please answer all the rating questions.");
@@ -29,16 +93,34 @@ function FeedbackForm() {
       return;
     }
 
-    // You can send feedback data here...
-    navigate("/dashboard");
+    try {
+      const responses = questions.map((question, index) => ({
+        question,
+        rating: answers[index + 1],
+      }));
+
+      await submitFeedback({
+        studentId, 
+        courseId,
+        professorId: course.professorId,
+        comments,
+        responses,
+      });
+
+      alert("Feedback submitted successfully!");
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Error submitting feedback:", err);
+      alert("Failed to submit feedback.");
+    }
   };
 
-  const renderRatingButtons = (question) =>
+  const renderRatingButtons = (questionNum) =>
     [1, 2, 3, 4, 5].map((val) => (
       <button
         key={val}
-        className={`rate ${answers[question] === val ? "selected" : ""}`}
-        onClick={() => handleRatingClick(question, val)}
+        className={`rate ${answers[questionNum] === val ? "selected" : ""}`}
+        onClick={() => handleRatingClick(questionNum, val)}
       >
         {val}
         <br />
@@ -57,9 +139,11 @@ function FeedbackForm() {
           <span>Back</span>
         </div>
         <div className="educator-info">
-          <span className="educator-name">Dr. Robert Browns</span>
+          <span className="educator-name">
+            {professor ? professor.name : "Loading..."}
+          </span>
           <span className="educator-details">
-            College of Physical Science | Mathematics
+            {professor && professor.department} | {course && course.courseName}
           </span>
         </div>
       </div>
@@ -71,12 +155,7 @@ function FeedbackForm() {
             <div className="title">Course Organization and Planning</div>
           </div>
 
-          {[
-            "Was the pacing of the course appropriate?",
-            "Were classes conducted according to the schedule?",
-            "Were the learning objectives clearly communicated?",
-            "Was the course syllabus clear and well-structured?",
-          ].map((questionText, index) => {
+          {questions.map((questionText, index) => {
             const questionNum = index + 1;
             return (
               <div

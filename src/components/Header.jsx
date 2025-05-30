@@ -1,9 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { auth, db} from "../firebase";
+import {
+  fetchStudentProfile,
+  fetchEnrolledCoursesWithFeedback,
+} from "../services/studentDataService";
+import { useAuth } from "../context/AuthContext";
+import { getInitials } from "../pages/StudentProfile";
 
 function Header() {
+  const { user } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [studentName, setStudentName] = useState("");
+  const [studentInitials, setStudentInitials] = useState("")
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -24,6 +34,19 @@ function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const loadData = async () => {
+      if (user) {
+        const student = await fetchStudentProfile(user.uid);
+        setStudentName(student.name)
+        setStudentInitials(getInitials(student.name))
+      }
+    }
+
+    loadData()
+  }, [user]);
+
+  
   return (
     <>
       <style>{`
@@ -152,9 +175,9 @@ function Header() {
 
         <div className="user-menu" onClick={toggleDropdown} ref={dropdownRef}>
           <div className="avatar">
-            <div className="initials">JS</div>
+            <div className="initials">{studentInitials}</div>
           </div>
-          <div className="user_name">John Smith</div>
+          <div className="user_name">{studentName}</div>
 
           {dropdownOpen && (
             <div className="dropdown-menu">

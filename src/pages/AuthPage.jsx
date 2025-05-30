@@ -1,14 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { createInitialFeedbackDocuments } from "../services/feedbackDataService";
+import { auth } from "../firebase";
 import "../styles/auth_page.css";
 
 function AuthPage() {
   const navigate = useNavigate();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!role) {
@@ -16,7 +22,22 @@ function AuthPage() {
       return;
     }
 
-    navigate("/dashboard");
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      if (role === "student") {
+        
+        navigate("/dashboard");
+      } else {
+        alert("Only students can log in right now");
+
+        await auth.signOut(); //Just in case an educator accidentally logs in
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Invalid Email or Password"); 
+    }
+
   };
 
   const togglePassword = () => {
@@ -60,7 +81,8 @@ function AuthPage() {
                 type="email"
                 placeholder="Email address"
                 required
-                
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
 
               <div className="auth-password-wrapper">
@@ -68,6 +90,8 @@ function AuthPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <img
                   src={showPassword ? "/assets/see_password.svg" : "/assets/hide_password.svg"}
@@ -90,6 +114,8 @@ function AuthPage() {
               <button type="submit" className="auth-primary-btn">
                 Login
               </button>
+
+              {error && <p className="auth-error">{error}</p>}
             </form>
           </div>
         </div>
