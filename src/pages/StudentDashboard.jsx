@@ -52,8 +52,9 @@ function StudentDashboard() {
   };
 
   const handleEditFeedback = (courseId) => {
-    navigate(`/feedback-form?edit=true&courseId=${courseId}`);
+    navigate("/feedback-form", { state: { courseId, isEdit: true } });
   };
+
 
   const handleDeleteFeedback = async (courseId) => {
     const confirmed = window.confirm("Are you sure you want to delete this feedback?");
