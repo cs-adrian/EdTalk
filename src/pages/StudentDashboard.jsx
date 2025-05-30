@@ -7,6 +7,7 @@ import {
 } from "../services/studentDataService";
 import { createInitialFeedbackDocuments, clearFeedback, } from "../services/feedbackDataService";
 import Header from "../components/Header";
+import LoadingComponent from "../components/LoadingComponent";
 import "../styles/dashboard_style.css";
 
 function StudentDashboard() {
@@ -39,7 +40,7 @@ function StudentDashboard() {
   }, []);
 
   if (loading || !coursesData) {
-    return <div>Loading Dashboard...</div>;
+    return <LoadingComponent />;
   }
 
   const filteredCourses = coursesData.filter(

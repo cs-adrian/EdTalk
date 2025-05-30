@@ -6,6 +6,7 @@ import {
   fetchStudentProfile,
   fetchEnrolledCoursesWithFeedback,
 } from "../services/studentDataService";
+import LoadingComponent from "../components/LoadingComponent";
 
 export function getInitials(name) {
   const words = name.trim().split(/\s+/);
@@ -48,7 +49,7 @@ function StudentProfile() {
     
 
   if (loading || !studentData) {
-    return <div>Loading student profile...</div>;
+    return <LoadingComponent />;
   }
 
   const handleBack = () => window.history.back();
