@@ -1,7 +1,52 @@
 // src/services/feedbackDataService.js
-
+import { fetchStudentProfile } from "./studentDataService";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+
+export async function createInitialFeedbackDocuments(uid) {
+  const student = await fetchStudentProfile(uid);
+  const studentId = student.studentId;
+  const enrolledCourses = student.enrolledCourses || [];
+
+  for (const courseId of enrolledCourses) {
+    const feedbackId = `${studentId}_${courseId}`;
+    console.log(`${feedbackId}`)
+    const feedbackDocRef = doc(db, "feedbacks", feedbackId);
+    
+    const feedbackSnap = await getDoc(feedbackDocRef);
+
+    if (feedbackSnap.exists()) {
+      console.log(`Feedback for ${feedbackId} already exists. Skipping.`);
+      continue;
+    }
+
+    const courseDocRef = doc(db, "courses", courseId);
+    const courseSnap = await getDoc(courseDocRef);
+
+    if (!courseSnap.exists()) {
+      console.warn(`Course ${courseId} not found. Skipping.`);
+      continue;
+    }
+
+    const courseData = courseSnap.data();
+    const professorId = courseData.professorId;
+    
+
+    const newFeedback = {
+      studentId: studentId,
+      courseId: courseId,
+      professorId: professorId,
+      comment: "",
+      responses: [],
+      status: "pending",
+      rating: "0",
+    };
+
+    await setDoc(feedbackDocRef, newFeedback);
+    console.log(`Created feedback document: ${feedbackId}`);
+  }
+}
+
 
 // Submit or update feedback
 export async function submitFeedback({ studentId, courseId, professorId, comments, responses }) {

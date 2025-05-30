@@ -5,7 +5,7 @@ import {
   fetchStudentProfile,
   fetchEnrolledCoursesWithFeedback,
 } from "../services/studentDataService";
-import { clearFeedback } from "../services/feedbackDataService";
+import { createInitialFeedbackDocuments, clearFeedback, } from "../services/feedbackDataService";
 import Header from "../components/Header";
 import "../styles/dashboard_style.css";
 
@@ -15,13 +15,14 @@ function StudentDashboard() {
   const [coursesData, setCoursesData] = useState([]);
   const [studentId, setStudentId] = useState("");
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const fetchData = async () => {
       const user = auth.currentUser;
       if (!user) return;
 
       try {
+        await createInitialFeedbackDocuments(user.uid);
         const student = await fetchStudentProfile(user.uid);
         setStudentId(student.studentId);
 

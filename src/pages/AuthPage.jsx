@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { createInitialFeedbackDocuments } from "../services/feedbackDataService";
 import { auth } from "../firebase";
 import "../styles/auth_page.css";
 
@@ -25,6 +26,7 @@ function AuthPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
       if (role === "student") {
+        
         navigate("/dashboard");
       } else {
         alert("Only students can log in right now");
