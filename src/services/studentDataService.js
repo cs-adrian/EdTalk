@@ -1,5 +1,3 @@
-// src/services/studentDataService.js
-
 import { doc, getDoc, query, where, collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -28,7 +26,8 @@ export async function fetchEnrolledCoursesWithFeedback(student) {
 
     const courseData = courseDocSnap.data();
 
-    // Construct feedback document ID: `${studentId}_${courseId}`
+    // Construct feedback document ID: studentId + courseId
+    // Ganyan ginamit ko na document Id ng feedbacks hahaha
     const feedbackDocId = `${student.studentId}_${courseId}`;
     const feedbackDocRef = doc(db, "feedbacks", feedbackDocId);
     const feedbackDocSnap = await getDoc(feedbackDocRef);
@@ -59,6 +58,6 @@ export async function fetchProfessorByProfessorId(professorId) {
     throw new Error("Professor not found");
   }
 
-  // Assuming professorId is unique, just return the first result
+  // return the first result since unique naman professor Id
   return querySnapshot.docs[0].data();
 }

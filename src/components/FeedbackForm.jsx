@@ -36,7 +36,8 @@ function FeedbackForm() {
         const student = await fetchStudentProfile(user.uid);
         setStudentId(student.studentId);
 
-        if (student) {console.log(`STUDENT DATA IS VALID. ID: ${student.studentId}`)}
+        //for debugging lang mga ganto wag nyo pansinin
+        if (student) {console.log(`STUDENT DATA IS VALID. ID: ${student.studentId}`)} 
         
 
         const courseSnap = await getDoc(doc(db, "courses", courseId));

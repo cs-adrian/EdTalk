@@ -1,8 +1,8 @@
-// src/services/feedbackDataService.js
 import { fetchStudentProfile } from "./studentDataService";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
+//Gagawa ng initial feedback document based sa enrolled courses
 export async function createInitialFeedbackDocuments(uid) {
   const student = await fetchStudentProfile(uid);
   const studentId = student.studentId;
@@ -64,7 +64,7 @@ export async function submitFeedback({ studentId, courseId, professorId, comment
     comment: comments,
     responses, // Array of { question, rating }
     status: "submitted",
-    rating: calculateAverageRating(responses).toString(), // Store as string for consistency
+    rating: calculateAverageRating(responses).toString(), 
   };
 
   await setDoc(feedbackDocRef, feedbackData);
@@ -82,7 +82,7 @@ export async function fetchFeedbackByStudentAndCourse(studentId, courseId) {
   return feedbackSnap.data();
 }
 
-// Clear feedback content but keep the document
+// Clear feedback content (DELETE feedback)
 export async function clearFeedback(studentId, courseId) {
   const feedbackId = `${studentId}_${courseId}`;
   const feedbackDocRef = doc(db, "feedbacks", feedbackId);
@@ -101,7 +101,7 @@ export async function clearFeedback(studentId, courseId) {
 function calculateAverageRating(responses) {
   if (!responses || responses.length === 0) return 0;
 
-  // Invert the 1–5 rating (1=Excellent becomes 5, 5=Poor becomes 1)
+  
   const invertedSum = responses.reduce((acc, r) => acc + (6 - parseInt(r.rating)), 0);
   return invertedSum / responses.length;
 }
