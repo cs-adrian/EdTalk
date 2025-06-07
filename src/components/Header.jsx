@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db} from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
+
 import {
   fetchStudentProfile,
   fetchEnrolledCoursesWithFeedback,
@@ -12,8 +14,9 @@ function Header() {
   const { user } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const [studentName, setStudentName] = useState("");
-  const [studentInitials, setStudentInitials] = useState("")
+  const [userName, setUserName] = useState("");
+  const [userInitials, setUserInitials] = useState("");
+  const [userRole, setUserRole] = useState(null); 
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -26,7 +29,14 @@ function Header() {
     }
   };
 
-  const handleProfileClick = () => navigate("/profile");
+  const handleProfileClick = () => {
+    if (userRole === "student") {
+      navigate("/profile");
+    } else if (userRole === "professor") {
+      navigate("/professor-profile");
+    }
+  };
+
   const handleLogoutClick = () => navigate("/");
 
   useEffect(() => {
@@ -35,16 +45,31 @@ function Header() {
   }, []);
 
   useEffect(() => {
-    const loadData = async () => {
-      if (user) {
-        const student = await fetchStudentProfile(user.uid);
-        setStudentName(student.name)
-        setStudentInitials(getInitials(student.name))
-      }
-    }
+      const loadData = async () => {
+        if (user) {
+          // Try student first
+          const studentDoc = await getDoc(doc(db, "students", user.uid));
+          if (studentDoc.exists()) {
+            const student = studentDoc.data();
+            setUserRole("student");
+            setUserName(student.name);
+            setUserInitials(getInitials(student.name));
+            return;
+          }
 
-    loadData()
-  }, [user]);
+          // Try professor
+          const profDoc = await getDoc(doc(db, "professors", user.uid));
+          if (profDoc.exists()) {
+            const prof = profDoc.data();
+            setUserRole("professor");
+            setUserName(prof.name);
+            setUserInitials(getInitials(prof.name));
+          }
+        }
+      };
+
+      loadData();
+    }, [user]);
 
   
   return (
@@ -175,9 +200,9 @@ function Header() {
 
         <div className="user-menu" onClick={toggleDropdown} ref={dropdownRef}>
           <div className="avatar">
-            <div className="initials">{studentInitials}</div>
+            <div className="initials">{userInitials}</div>
           </div>
-          <div className="user_name">{studentName}</div>
+          <div className="user_name">{userName}</div>
 
           {dropdownOpen && (
             <div className="dropdown-menu">

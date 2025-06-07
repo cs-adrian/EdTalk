@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase"; 
+import Header from "../components/Header";
 import LoadingComponent from "../components/LoadingComponent";
 
 
@@ -10,6 +11,7 @@ function ProfessorDashboard() {
 
     return (
         <div className="prof-dashboard-container">
+            <Header />
             <div>
                 <h1>PROFESSOR DASHBOARD PAGE</h1>
                 
