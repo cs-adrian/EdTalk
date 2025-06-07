@@ -1,0 +1,108 @@
+.professor-profile-container {
+  margin-top: 80px; /* Push content below fixed header */
+  padding: 20px;
+}
+
+.professor-profile-page {
+  max-width: 900px;
+  margin: auto;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.back-icon {
+  width: 24px;
+  margin-right: 8px;
+}
+
+.my-profile {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.view-and-manage {
+  margin-bottom: 30px;
+  color: #555;
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-picture .big-initials {
+  background: #007bff;
+  color: white;
+  width: 64px;
+  height: 64px;
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.profile-name .profile_name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.professor {
+  color: #888;
+}
+
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.info-card {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.card-header {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.info-item .label {
+  font-size: 14px;
+  color: #666;
+}
+
+.info-item .value {
+  font-weight: 500;
+}
+
+.course-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.course-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #ddd;
+}
