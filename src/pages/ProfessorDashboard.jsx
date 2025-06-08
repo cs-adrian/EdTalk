@@ -46,8 +46,7 @@ function ProfessorDashboard() {
         for (const course of coursesHandled) {
           const { courseId, section } = course;
           
-          const studentCount = await getStudentCountInSectionForCourse(courseId, section);
-         
+          const studentCount = await getStudentCountInSectionForCourse(courseId, section);       
           const avgRating = await getAverageRatingForCourseInSection(courseId, section);
           const feedbackCount = await getFeedbackCountForCourseInSection(courseId, section);
          
