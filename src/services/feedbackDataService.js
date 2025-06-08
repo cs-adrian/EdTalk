@@ -33,7 +33,9 @@ export async function createInitialFeedbackDocuments(uid) {
     
 
     const newFeedback = {
+      studentName: student.name,
       studentId: studentId,
+      section: student.section,
       courseId: courseId,
       professorId: professorId,
       comment: "",
@@ -49,7 +51,7 @@ export async function createInitialFeedbackDocuments(uid) {
 
 
 // Submit or update feedback 
-export async function submitFeedback({ studentId, courseId, professorId, comments, responses }) {
+export async function submitFeedback({studentName, studentId, section, courseId, professorId, comments, responses }) {
   if (!studentId || !courseId || !professorId) {
     throw new Error("Missing required data to submit feedback.");
   }
@@ -58,7 +60,9 @@ export async function submitFeedback({ studentId, courseId, professorId, comment
   const feedbackDocRef = doc(db, "feedbacks", feedbackId);
 
   const feedbackData = {
+    studentName,
     studentId,
+    section,
     courseId,
     professorId,
     comment: comments,

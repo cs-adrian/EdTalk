@@ -12,7 +12,7 @@ function FeedbackForm() {
   const location = useLocation();
   const { courseId, isEdit } = location.state || {};
 
-  const [studentId, setStudentId] = useState(null);
+  const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [professor, setProfessor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +35,7 @@ function FeedbackForm() {
 
       try {
         const student = await fetchStudentProfile(user.uid);
-        setStudentId(student.studentId);
+        setStudent(student);
 
         //for debugging lang mga ganto wag nyo pansinin
         if (student) {console.log(`STUDENT DATA IS VALID. ID: ${student.studentId}`)} 
@@ -104,7 +104,9 @@ function FeedbackForm() {
       }));
 
       await submitFeedback({
-        studentId, 
+        studentName: student.name,
+        studentId: student.studentId,
+        section: student.section,
         courseId,
         professorId: course.professorId,
         comments,

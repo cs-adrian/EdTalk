@@ -61,3 +61,26 @@ export async function fetchProfessorByProfessorId(professorId) {
   // return the first result since unique naman professor Id
   return querySnapshot.docs[0].data();
 }
+
+export async function fetchStudentByStudentId(studentId) {
+  const q = query(
+    collection(db, "students"),
+    where("studentId", "==", studentId)
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    throw new Error("Student not found with studentId: " + studentId);
+  }
+
+  // Return first match (studentId is expected to be unique)
+  return querySnapshot.docs[0].data();
+}
+
+// ✅ Convenience: Fetch only the section of a student by studentId
+export async function fetchStudentSectionByStudentId(studentId) {
+  const student = await fetchStudentByStudentId(studentId);
+  return student.section;
+}
+

@@ -2,6 +2,12 @@ import React, { useEffect, useState } from "react";
 import { auth } from "../firebase";
 import { fetchProfessorProfile, fetchCoursesHandledByProfessor } from "../services/professorDataService";
 import { fetchFeedbacksByProfessorId, calculateProfessorStats } from "../services/feedbackDataService";
+import {
+  getStudentCountInSectionForCourse,
+  getAverageRatingForCourseInSection,
+  getFeedbackCountForCourseInSection
+} from "../services/courseDataService";
+
 import "../styles/dashboard_style.css"; // reuse student dashboard styles
 import Header from "../components/Header";
 import LoadingComponent from "../components/LoadingComponent";
@@ -37,8 +43,23 @@ function ProfessorDashboard() {
         //Get the Overall Rating of the professor
         console.log("Average Rating:", stats.averageRating);
         
+        for (const course of coursesHandled) {
+          const { courseId, section } = course;
+          
+          const studentCount = await getStudentCountInSectionForCourse(courseId, section);
+         
+          const avgRating = await getAverageRatingForCourseInSection(courseId, section);
+          const feedbackCount = await getFeedbackCountForCourseInSection(courseId, section);
+         
+          console.log(`📘 ${course.courseCode} - ${section}`);
+          console.log("  👨‍🎓 Students Enrolled from Section:", studentCount);
+          console.log("  ⭐ Average Rating (Section):", avgRating);
+          console.log("  📝 Feedbacks Submitted (Section):", feedbackCount);
+        }
+
         setCourses(coursesHandled);
         setLoading(false);
+
       } catch (error) {
         console.error("Error loading professor dashboard:", error);
       }
