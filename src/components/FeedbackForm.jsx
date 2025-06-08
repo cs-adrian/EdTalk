@@ -6,6 +6,7 @@ import { fetchFeedbackByStudentAndCourse, submitFeedback } from "../services/fee
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import "../styles/feedback_form.css";
+import LoadingComponent from "./LoadingComponent";
 
 function FeedbackForm() {
   const location = useLocation();
@@ -71,6 +72,8 @@ function FeedbackForm() {
     fetchData();
   }, [courseId]);
 
+  if (loading) return <LoadingComponent />;
+
   const handleRatingClick = (questionNum, value) => {
     setAnswers((prev) => ({ ...prev, [questionNum]: value }));
     setHighlightedQuestions((prev) => prev.filter((q) => q !== questionNum));
@@ -126,7 +129,7 @@ function FeedbackForm() {
         {val}
         <br />
         <span>
-          {["Excellent", "Very Good", "Good", "Fair", "Poor"][val - 1]}
+          {["Poor", "Fair", "Good", "Very Good", "Excellent"][val - 1]}
         </span>
       </button>
     ));

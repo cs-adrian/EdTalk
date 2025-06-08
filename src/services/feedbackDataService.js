@@ -2,7 +2,7 @@ import { fetchStudentProfile } from "./studentDataService";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
-//Gagawa ng initial feedback document based sa enrolled courses
+//Gagawa ng initial feedback document based sa enrolled courses (For student side only)
 export async function createInitialFeedbackDocuments(uid) {
   const student = await fetchStudentProfile(uid);
   const studentId = student.studentId;
@@ -48,7 +48,7 @@ export async function createInitialFeedbackDocuments(uid) {
 }
 
 
-// Submit or update feedback
+// Submit or update feedback (For student side only)
 export async function submitFeedback({ studentId, courseId, professorId, comments, responses }) {
   if (!studentId || !courseId || !professorId) {
     throw new Error("Missing required data to submit feedback.");
@@ -82,7 +82,7 @@ export async function fetchFeedbackByStudentAndCourse(studentId, courseId) {
   return feedbackSnap.data();
 }
 
-// Clear feedback content (DELETE feedback)
+// Clear feedback content (For student side only)
 export async function clearFeedback(studentId, courseId) {
   const feedbackId = `${studentId}_${courseId}`;
   const feedbackDocRef = doc(db, "feedbacks", feedbackId);
@@ -101,8 +101,7 @@ export async function clearFeedback(studentId, courseId) {
 function calculateAverageRating(responses) {
   if (!responses || responses.length === 0) return 0;
 
-  
-  const invertedSum = responses.reduce((acc, r) => acc + (6 - parseInt(r.rating)), 0);
-  return invertedSum / responses.length;
+  const sum = responses.reduce((acc, r) => acc + (parseInt(r.rating)), 0);
+  return sum / responses.length;
 }
 
