@@ -1,8 +1,8 @@
 import { fetchStudentProfile } from "./studentDataService";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 
-//Gagawa ng initial feedback document based sa enrolled courses (For student side only)
+//Creates initial feedback document based on enrolled courses 
 export async function createInitialFeedbackDocuments(uid) {
   const student = await fetchStudentProfile(uid);
   const studentId = student.studentId;
@@ -48,7 +48,7 @@ export async function createInitialFeedbackDocuments(uid) {
 }
 
 
-// Submit or update feedback (For student side only)
+// Submit or update feedback 
 export async function submitFeedback({ studentId, courseId, professorId, comments, responses }) {
   if (!studentId || !courseId || !professorId) {
     throw new Error("Missing required data to submit feedback.");
@@ -82,7 +82,7 @@ export async function fetchFeedbackByStudentAndCourse(studentId, courseId) {
   return feedbackSnap.data();
 }
 
-// Clear feedback content (For student side only)
+// Clear feedback content
 export async function clearFeedback(studentId, courseId) {
   const feedbackId = `${studentId}_${courseId}`;
   const feedbackDocRef = doc(db, "feedbacks", feedbackId);
@@ -97,7 +97,7 @@ export async function clearFeedback(studentId, courseId) {
   await setDoc(feedbackDocRef, clearedData, { merge: true });
 }
 
-
+// For calculating the average rating of a feedback response
 function calculateAverageRating(responses) {
   if (!responses || responses.length === 0) return 0;
 
@@ -105,3 +105,38 @@ function calculateAverageRating(responses) {
   return sum / responses.length;
 }
 
+
+/* for professors only*/
+
+// Fetch all feedback documents for a specific professor
+export async function fetchFeedbacksByProfessorId(professorId) {
+  const feedbacksRef = collection(db, "feedbacks");
+
+  const q = query(feedbacksRef, where("professorId", "==", professorId));
+
+  const snapshot = await getDocs(q);
+  const feedbacks = [];
+
+  snapshot.forEach(doc => {
+    feedbacks.push({ id: doc.id, ...doc.data() });
+  });
+
+  return feedbacks;
+}
+
+export function calculateProfessorStats(feedbacks) {
+  const submittedFeedbacks = feedbacks.filter(fb => fb.status === "submitted");
+  const totalFeedbacks = submittedFeedbacks.length;
+
+  if (totalFeedbacks === 0) {
+    return { averageRating: 0, totalFeedbacks: 0 };
+  }
+
+  const sumRatings = submittedFeedbacks.reduce((acc, fb) => acc + parseFloat(fb.rating), 0);
+  const averageRating = sumRatings / totalFeedbacks;
+
+  return {
+    averageRating: parseFloat(averageRating.toFixed(2)),
+    totalFeedbacks
+  };
+}

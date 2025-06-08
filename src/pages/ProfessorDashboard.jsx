@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { auth } from "../firebase";
+import { fetchProfessorProfile, fetchCoursesHandledByProfessor } from "../services/professorDataService";
+import { fetchFeedbacksByProfessorId, calculateProfessorStats } from "../services/feedbackDataService";
+import "../styles/dashboard_style.css"; // reuse student dashboard styles
 import Header from "../components/Header";
 import LoadingComponent from "../components/LoadingComponent";
-import { fetchProfessorProfile, fetchCoursesHandledByProfessor } from "../services/professorDataService";
-import "../styles/dashboard_style.css"; // reuse student dashboard styles
 
 function ProfessorDashboard() {
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,15 @@ function ProfessorDashboard() {
       try {
         const professor = await fetchProfessorProfile(user.uid);
         const coursesHandled = await fetchCoursesHandledByProfessor(professor);
+        const professorId = professor.professorId
+        
+        const feedbacks = await fetchFeedbacksByProfessorId(professorId);
 
+        const stats = calculateProfessorStats(feedbacks);
+
+        console.log("Total Feedbacks Received:", stats.totalFeedbacks);
+        console.log("Average Rating:", stats.averageRating);
+        
         setCourses(coursesHandled);
         setLoading(false);
       } catch (error) {
