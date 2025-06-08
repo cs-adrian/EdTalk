@@ -2,10 +2,11 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
 import StudentDashboard from "./pages/StudentDashboard";
-import FeedbackForm from "./components/FeedbackForm";
+import FeedbackForm from "./pages/FeedbackForm";
 import StudentProfile from "./pages/StudentProfile";
 import ProfessorDashboard from "./pages/ProfessorDashboard";
 import ProfessorProfile from "./pages/ProfessorProfile";
+import CourseFeedbackStatistics from "./pages/CourseFeedbackStatistics";
 import PrivateRoute from "./components/PrivateRoute"
 
 function App() {
@@ -55,6 +56,15 @@ function App() {
             <ProfessorProfile />
           </PrivateRoute>  
         } 
+      />
+      <Route 
+        path="/course-feedback" 
+        element={
+          <PrivateRoute requiredRole="professor">
+            <CourseFeedbackStatistics />
+          </PrivateRoute>  
+        } 
+        
       />
     </Routes>
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { auth } from "../firebase";
+import { useNavigate } from "react-router-dom";
 import { fetchProfessorProfile, fetchCoursesHandledByProfessor } from "../services/professorDataService";
 import { fetchFeedbacksByProfessorId, calculateProfessorStats } from "../services/feedbackDataService";
 import {
@@ -13,6 +14,7 @@ import Header from "../components/Header";
 import LoadingComponent from "../components/LoadingComponent";
 
 function ProfessorDashboard() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState("");
@@ -75,6 +77,10 @@ function ProfessorDashboard() {
       c.courseCode.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleViewFeedbackStats = (courseId, section) => {
+    navigate("/course-feedback", { state: { courseId, section } });
+  };
+
   return (
     <div className="container">
       <Header />
@@ -101,7 +107,10 @@ function ProfessorDashboard() {
       <div className="student-dashboard">
         <div className="professor-list">
           {filteredCourses.map((course) => (
-            <div className="professor-card" key={course.courseId}>
+             <div
+                className="professor-card"
+                key={course.courseId}
+              >
               <div className="professor-info">
                 <div className="prof-details">
                   <div className="educator_avatar">
@@ -117,6 +126,11 @@ function ProfessorDashboard() {
                   </div>
                 </div>
               </div>
+              <button
+                onClick={() => handleViewFeedbackStats(course.courseId, course.section)}
+              >
+                View Feedback Stats
+              </button>
             </div>
           ))}
 

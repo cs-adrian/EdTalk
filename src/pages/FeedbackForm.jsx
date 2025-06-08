@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Header from "./Header";
+import Header from "../components/Header";
 import { fetchStudentProfile, fetchProfessorByProfessorId } from "../services/studentDataService";
 import { fetchFeedbackByStudentAndCourse, submitFeedback } from "../services/feedbackDataService";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import "../styles/feedback_form.css";
-import LoadingComponent from "./LoadingComponent";
+import LoadingComponent from "../components/LoadingComponent";
 
 function FeedbackForm() {
   const location = useLocation();

@@ -59,3 +59,17 @@ export async function getFeedbackCountForCourseInSection(courseId, section) {
   const snapshot = await getDocs(q);
   return snapshot.size;
 }
+
+// 4. Fetch all submitted feedbacks for a course from a section
+export async function fetchFeedbacksForCourseInSection(courseId, section) {
+  const q = query(
+    collection(db, "feedbacks"),
+    where("courseId", "==", courseId),
+    where("section", "==", section),
+    where("status", "==", "submitted")
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
