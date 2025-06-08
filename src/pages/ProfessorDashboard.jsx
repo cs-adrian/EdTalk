@@ -20,12 +20,21 @@ function ProfessorDashboard() {
         const professor = await fetchProfessorProfile(user.uid);
         const coursesHandled = await fetchCoursesHandledByProfessor(professor);
         const professorId = professor.professorId
+
+        const uniqueSections = new Set(
+         coursesHandled.map(course => course.courseId.split("_")[1])
+        );
+
+        const numberOfSections = uniqueSections.size;
+        console.log("Number of Unique Sections:", numberOfSections);
         
         const feedbacks = await fetchFeedbacksByProfessorId(professorId);
 
         const stats = calculateProfessorStats(feedbacks);
 
-        console.log("Total Feedbacks Received:", stats.totalFeedbacks);
+        //Get the total number of feedbacks received
+        console.log("Total Feedbacks Received:", stats.totalFeedbacks); 
+        //Get the Overall Rating of the professor
         console.log("Average Rating:", stats.averageRating);
         
         setCourses(coursesHandled);
