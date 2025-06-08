@@ -31,10 +31,10 @@ function CourseFeedbackStatistics() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const count = await getStudentCountInSectionForCourse(courseId, section);
-        const avgRating = await getAverageRatingForCourseInSection(courseId, section);
-        const fbCount = await getFeedbackCountForCourseInSection(courseId, section);
-        const fbData = await fetchFeedbacksForCourseInSection(courseId, section); // Implement this to get all feedback docs for course+section
+        const count = await getStudentCountInSectionForCourse(courseId, section);// get total number of students in the section
+        const avgRating = await getAverageRatingForCourseInSection(courseId, section); // get average rating
+        const fbCount = await getFeedbackCountForCourseInSection(courseId, section); // get feedback count
+        const fbData = await fetchFeedbacksForCourseInSection(courseId, section); // get all feedback docs for course+section
 
         setStudentCount(count);
         setAverageRating(avgRating);
@@ -53,10 +53,6 @@ function CourseFeedbackStatistics() {
   if (loading) return <LoadingComponent />;
 
   // Compute rating breakdown per question
-  // Assuming feedbacks is an array of objects with a 'responses' array like [{question: "", rating: 3}, ...]
-
-  // Example for question 1 ratings count by value:
-  // Structure: { questionIndex: { ratingValue: count } }
 
   const ratingLabels = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
 
@@ -70,7 +66,6 @@ function CourseFeedbackStatistics() {
     });
   });
 
-  // Questions text - should match feedback form
   const questions = [
     "Was the pacing of the course appropriate?",
     "Were classes conducted according to the schedule?",

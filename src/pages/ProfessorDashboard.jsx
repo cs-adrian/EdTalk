@@ -40,9 +40,9 @@ function ProfessorDashboard() {
 
         const stats = calculateProfessorStats(feedbacks);
 
-        //Get the total number of feedbacks received
+        //Get the total number of feedbacks received (di na kasama sa frontend)
         console.log("Total Feedbacks Received:", stats.totalFeedbacks); 
-        //Get the Overall Rating of the professor
+        //Get the Overall Rating of the professor (di na kasama sa frontend)
         console.log("Average Rating:", stats.averageRating);
         
         for (const course of coursesHandled) {
@@ -87,7 +87,7 @@ function ProfessorDashboard() {
       <div className="dashboard-header">
         <div className="my-feedback">My Courses</div>
         <div className="manage-your-feedback-to-professors">
-          Courses you currently handle
+          View and analyze feedback for your courses
         </div>
       </div>
 
