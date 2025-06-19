@@ -1,26 +1,26 @@
-.container {
+.student-container {
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   width: 100%;
   height: calc(100vh);
   background-color: #ffffff;
-  overflow-y: auto; 
+  overflow-y: auto;
 }
 
 .iframe-container {
-    width: 100%;
-    border: none;
+  width: 100%;
+  border: none;
 }
 
-.dashboard-header {
-  position: relative; 
+.student-dashboard-header {
+  position: relative;
   padding: 32px 32px;
   display: flex;
   flex-direction: column;
   gap: 32px;
   align-items: flex-start;
   justify-content: flex-start;
-  top: 64px; 
+  top: 64px;
   margin-bottom: 20px;
 }
 
@@ -35,7 +35,7 @@
   justify-content: flex-start;
 }
 
-.my-feedback {
+.student-my-feedback {
   color: #111827;
   text-align: left;
   font-family: "Poppins-Bold", sans-serif;
@@ -44,7 +44,8 @@
   font-weight: 700;
   position: relative;
 }
-.manage-your-feedback-to-professors {
+
+.student-manage-your-feedback-to-professors {
   color: #6b7280;
   text-align: left;
   font-family: "Inter-Regular", sans-serif;
@@ -54,7 +55,8 @@
   position: relative;
   top: -20px;
 }
-.action-bar {
+
+.student-action-bar {
   top: 10px;
   left: 24px;
   display: flex;
@@ -65,13 +67,14 @@
   flex-shrink: 0;
   position: relative;
 }
-.search-bar {
+
+.student-search-bar {
   background: #ffffff;
   border-radius: 6px;
   border-style: solid;
   border-color: #e2e8f0;
   border-width: 1px;
-  padding: 0px 16px 0px 16px;
+  padding: 0px 16px;
   display: flex;
   flex-direction: row;
   gap: 8px;
@@ -82,14 +85,16 @@
   height: 44px;
   position: relative;
 }
-.search-icon {
+
+.student-search-icon {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
   position: relative;
   overflow: visible;
 }
-.search-professors {
+
+.student-search-professors {
   flex-grow: 1;
   border: none;
   outline: none;
@@ -101,7 +106,7 @@
   font-weight: 400;
 }
 
-.professor-list {
+.student-professor-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -111,7 +116,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.professor-card {
+
+.student-professor-card {
   background: #ffffff;
   border-radius: 8px;
   border-style: solid;
@@ -127,7 +133,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.professor-info {
+
+.student-professor-info {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -136,7 +143,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.prof-details {
+
+.student-prof-details {
   display: flex;
   flex-direction: row;
   gap: 12px;
@@ -145,7 +153,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.educator_avatar {
+
+.student-educator_avatar {
   background: #eef2ff;
   border-radius: 24px;
   display: flex;
@@ -158,7 +167,8 @@
   height: 48px;
   position: relative;
 }
-.educator_initials {
+
+.student-educator_initials {
   color: #4338ca;
   text-align: left;
   font-family: "Inter-SemiBold", sans-serif;
@@ -167,7 +177,8 @@
   font-weight: 600;
   position: relative;
 }
-.name-info {
+
+.student-name-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -176,7 +187,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.educator_name {
+
+.student-educator_name {
   color: #111827;
   text-align: left;
   font-family: "Inter-SemiBold", sans-serif;
@@ -185,7 +197,8 @@
   font-weight: 600;
   position: relative;
 }
-.educator_subject {
+
+.student-educator_subject {
   color: #6b7280;
   text-align: left;
   font-family: "Inter-Regular", sans-serif;
@@ -194,10 +207,11 @@
   font-weight: 400;
   position: relative;
 }
-.status {
+
+.student-status {
   background: #dcfce7;
   border-radius: 12px;
-  padding: 4px 12px 4px 12px;
+  padding: 4px 12px;
   display: flex;
   flex-direction: row;
   gap: 0px;
@@ -206,7 +220,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.feedback-submitted {
+
+.student-feedback-submitted {
   color: #166534;
   text-align: left;
   font-family: "Inter-Medium", sans-serif;
@@ -215,7 +230,8 @@
   font-weight: 500;
   position: relative;
 }
-.feedback-summary {
+
+.student-feedback-summary {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -225,7 +241,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.rating {
+
+.student-rating {
   display: flex;
   flex-direction: row;
   gap: 4px;
@@ -235,7 +252,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.your-rating {
+
+.student-your-rating {
   color: #374151;
   text-align: left;
   font-family: "Inter-Medium", sans-serif;
@@ -244,7 +262,8 @@
   font-weight: 500;
   position: relative;
 }
-.stars {
+
+.student-stars {
   display: flex;
   flex-direction: row;
   gap: 2px;
@@ -253,42 +272,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.star {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  position: relative;
-  overflow: visible;
-}
-.star2 {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  position: relative;
-  overflow: visible;
-}
-.star3 {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  position: relative;
-  overflow: visible;
-}
-.star4 {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  position: relative;
-  overflow: visible;
-}
-.star5 {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  position: relative;
-  overflow: visible;
-}
-.feedback_given{
+
+.feedback_given {
   color: #4b5563;
   text-align: left;
   font-family: "Inter-Regular", sans-serif;
@@ -298,7 +283,8 @@
   position: relative;
   align-self: stretch;
 }
-.action-buttons {
+
+.student-action-buttons {
   display: flex;
   flex-direction: row;
   gap: 8px;
@@ -308,13 +294,14 @@
   flex-shrink: 0;
   position: relative;
 }
-.edit-button,
-.delete-button {
-  border: none; 
+
+.student-edit-button,
+.student-delete-button {
+  border: none;
   outline: none;
   cursor: pointer;
   border-radius: 6px;
-  padding: 0px 12px 0px 12px;
+  padding: 0px 12px;
   display: flex;
   flex-direction: row;
   gap: 4px;
@@ -324,17 +311,20 @@
   height: 36px;
   position: relative;
 }
-.edit-button {
+
+.student-edit-button {
   background: #f3f4f6;
 }
-.edit-icon {
+
+.student-edit-icon {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
   position: relative;
   overflow: visible;
 }
-.edit {
+
+.student-edit {
   color: #4b5563;
   text-align: left;
   font-family: "Inter-Medium", sans-serif;
@@ -343,17 +333,20 @@
   font-weight: 500;
   position: relative;
 }
-.delete-button {
+
+.student-delete-button {
   background: #fef2f2;
 }
-.delete-icon {
+
+.student-delete-icon {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
   position: relative;
   overflow: visible;
 }
-.delete {
+
+.student-delete {
   color: #dc2626;
   text-align: left;
   font-family: "Inter-Medium", sans-serif;
@@ -362,10 +355,11 @@
   font-weight: 500;
   position: relative;
 }
-.status2 {
+
+.student-status2 {
   background: #fef3c7;
   border-radius: 12px;
-  padding: 4px 12px 4px 12px;
+  padding: 4px 12px;
   display: flex;
   flex-direction: row;
   gap: 0px;
@@ -374,7 +368,8 @@
   flex-shrink: 0;
   position: relative;
 }
-.pending-feedback {
+
+.student-pending-feedback {
   color: #92400e;
   text-align: left;
   font-family: "Inter-Medium", sans-serif;
@@ -384,7 +379,7 @@
   position: relative;
 }
 
-.add-button {
+.student-add-button {
   background: #f3f4f6;
   border-radius: 6px;
   padding: 0px 12px;
@@ -400,17 +395,17 @@
   transition: all 0.2s ease;
 }
 
-.add-button:hover {
+.student-add-button:hover {
   background: #4c7abe;
   transform: translateY(-1px);
 }
 
-.add-button:active {
+.student-add-button:active {
   background: #d1d5db;
   transform: translateY(0);
 }
 
-.add-icon {
+.student-add-icon {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
@@ -419,12 +414,12 @@
   transition: transform 0.2s ease;
 }
 
-.add-button:hover .add-icon {
+.student-add-button:hover .student-add-icon {
   transform: scale(1.1);
   color: whitesmoke;
 }
 
-.add-feedback {
+.student-add-feedback {
   color: #4b5563;
   text-align: left;
   font-family: "Inter-Medium", sans-serif;
@@ -435,7 +430,6 @@
   transition: color 0.2s ease;
 }
 
-.add-button:hover .add-feedback {
+.student-add-button:hover .student-add-feedback {
   color: whitesmoke;
 }
-
