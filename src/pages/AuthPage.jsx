@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { createInitialFeedbackDocuments } from "../services/feedbackDataService";
 import { auth } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 import "../styles/auth_page.css";
 
 function AuthPage() {
@@ -24,21 +26,39 @@ function AuthPage() {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const { user } = userCredential;
 
+      // Check role in Firestore
+      const studentDoc = await getDoc(doc(db, "students", user.uid));
+      const professorDoc = await getDoc(doc(db, "professors", user.uid));
+
+      let actualRole = null;
+
+      if (studentDoc.exists()) {
+        actualRole = "student";
+      } else if (professorDoc.exists()) {
+        actualRole = "educator"; // educator == professor
+      }
+
+      if (actualRole !== role) {
+        setError("Selected role does not match your account.");
+        await auth.signOut();
+        return;
+      }
+
+      // Navigate based on role
       if (role === "student") {
-        
         navigate("/dashboard");
       } else {
-        alert("Only students can log in right now");
-
-        await auth.signOut(); //Just in case an educator accidentally logs in
+        navigate("/professor-dashboard");
       }
+
     } catch (err) {
       console.error(err);
-      setError("Invalid Email or Password"); 
+      setError("Invalid Email or Password");
     }
-
   };
+
 
   const togglePassword = () => {
     setShowPassword((prev) => !prev);

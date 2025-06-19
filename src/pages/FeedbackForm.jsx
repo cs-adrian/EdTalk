@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Header from "./Header";
+import Header from "../components/Header";
 import { fetchStudentProfile, fetchProfessorByProfessorId } from "../services/studentDataService";
 import { fetchFeedbackByStudentAndCourse, submitFeedback } from "../services/feedbackDataService";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import "../styles/feedback_form.css";
+import LoadingComponent from "../components/LoadingComponent";
 
 function FeedbackForm() {
   const location = useLocation();
   const { courseId, isEdit } = location.state || {};
 
-  const [studentId, setStudentId] = useState(null);
+  const [student, setStudent] = useState(null);
   const [course, setCourse] = useState(null);
   const [professor, setProfessor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +35,7 @@ function FeedbackForm() {
 
       try {
         const student = await fetchStudentProfile(user.uid);
-        setStudentId(student.studentId);
+        setStudent(student);
 
         //for debugging lang mga ganto wag nyo pansinin
         if (student) {console.log(`STUDENT DATA IS VALID. ID: ${student.studentId}`)} 
@@ -71,6 +72,8 @@ function FeedbackForm() {
     fetchData();
   }, [courseId]);
 
+  if (loading) return <LoadingComponent />;
+
   const handleRatingClick = (questionNum, value) => {
     setAnswers((prev) => ({ ...prev, [questionNum]: value }));
     setHighlightedQuestions((prev) => prev.filter((q) => q !== questionNum));
@@ -101,7 +104,9 @@ function FeedbackForm() {
       }));
 
       await submitFeedback({
-        studentId, 
+        studentName: student.name,
+        studentId: student.studentId,
+        section: student.section,
         courseId,
         professorId: course.professorId,
         comments,
@@ -126,7 +131,7 @@ function FeedbackForm() {
         {val}
         <br />
         <span>
-          {["Excellent", "Very Good", "Good", "Fair", "Poor"][val - 1]}
+          {["Poor", "Fair", "Good", "Very Good", "Excellent"][val - 1]}
         </span>
       </button>
     ));
