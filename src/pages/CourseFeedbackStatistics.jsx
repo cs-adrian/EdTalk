@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import LoadingComponent from "../components/LoadingComponent";
+import "../styles/feedback_statistics.css";
 import {
   getStudentCountInSectionForCourse,
   getAverageRatingForCourseInSection,
@@ -23,7 +24,6 @@ function CourseFeedbackStatistics() {
 
   useEffect(() => {
     if (!courseId || !section) {
-      // if no courseId/section provided, redirect or show error
       navigate("/professor-dashboard");
       return;
     }
@@ -31,10 +31,10 @@ function CourseFeedbackStatistics() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const count = await getStudentCountInSectionForCourse(courseId, section);// get total number of students in the section
-        const avgRating = await getAverageRatingForCourseInSection(courseId, section); // get average rating
-        const fbCount = await getFeedbackCountForCourseInSection(courseId, section); // get feedback count
-        const fbData = await fetchFeedbacksForCourseInSection(courseId, section); // get all feedback docs for course+section
+        const count = await getStudentCountInSectionForCourse(courseId, section);
+        const avgRating = await getAverageRatingForCourseInSection(courseId, section);
+        const fbCount = await getFeedbackCountForCourseInSection(courseId, section);
+        const fbData = await fetchFeedbacksForCourseInSection(courseId, section);
 
         setStudentCount(count);
         setAverageRating(avgRating);
@@ -52,11 +52,8 @@ function CourseFeedbackStatistics() {
 
   if (loading) return <LoadingComponent />;
 
-  // Compute rating breakdown per question
+  const ratingLabels = ["Very Poor", "Poor", "Average", "Good", "Excellent"];
 
-  const ratingLabels = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
-
-  // Aggregate counts per question & rating
   const ratingCounts = {};
 
   feedbacks.forEach((fb) => {
@@ -73,71 +70,158 @@ function CourseFeedbackStatistics() {
     "Was the course syllabus clear and well-structured?",
   ];
 
+  const renderStars = (rating) => {
+    return (
+      <div className="professor-rating-stars">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <span
+            key={star}
+            className={`professor-star ${
+              star <= Math.floor(rating) ? 'professor-star-filled' : 'professor-star-empty'
+            }`}
+          >
+            ★
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   return (
-        <div className="container">
-        <Header />
-        <h2 style={{ marginTop: "100px" }}>
-            Feedback Statistics for Course: {courseId} | Section: {section}
-        </h2>
+    <div className="professor-page-container">
+      <Header />
+      
+      <div className="professor-sticky-header">
+        <div className="professor-header-content">
+          <div className="professor-header-flex">
+            <button 
+              onClick={() => navigate("/professor-dashboard")}
+              className="professor-back-button"
+            >
+              ← Back
+            </button>
+            
+            <div className="professor-title-container">
+              <div className="professor-title-row">
+                <h1 className="professor-course-title">
+                  {courseId} - {section}
+                </h1>
+                <span className="professor-response-badge">
+                  {feedbackCount} Responses
+                </span>
+              </div>
+              <p className="professor-course-subtitle">
+                Information Assurance and Security 1
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div className="statistics-summary">
-        <div className="summary-flex">
-            <div className="summary-box">
-            <h4>Total Responses</h4>
-            <p style={{ fontSize: "1.5rem", fontWeight: "bold" }}>{feedbackCount}</p>
-            <p>out of {studentCount} students</p>
+      <div className="professor-main-content">
+        <div className="professor-section">
+          <h2 className="professor-section-title">
+            Feedback Overview
+          </h2>
+          
+          <div className="professor-overview-flex">
+            <div className="professor-overview-box">
+              <h3 className="professor-box-label">
+                Total Responses
+              </h3>
+              <div className="professor-box-value">
+                {feedbackCount}
+              </div>
+              <div className="professor-box-subtext">
+                out of {studentCount} students
+              </div>
             </div>
 
-            <div className="summary-box">
-            <h4>Average Rating</h4>
-            <p style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-                {averageRating.toFixed(2)}
-            </p>
+            <div className="professor-overview-box">
+              <h3 className="professor-box-label">
+                Average Rating
+              </h3>
+              <div className="professor-box-value" style={{ marginBottom: '5px' }}>
+                {averageRating.toFixed(1)}
+              </div>
+              {renderStars(averageRating)}
             </div>
-        </div>
+          </div>
         </div>
 
+        <div className="professor-section">
+          <h2 className="professor-analysis-title">
+            Feedback Analysis
+          </h2>
 
-        <div>
-            {questions.map((questionText, idx) => {
+          {questions.map((questionText, idx) => {
             const counts = ratingCounts[idx] || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
             const totalResponsesForQuestion = Object.values(counts).reduce((a, b) => a + b, 0);
 
             return (
-                <div key={idx} style={{ marginTop: "20px" }}>
-                <h4>{questionText}</h4>
-                {[5, 4, 3, 2, 1].map((ratingValue) => {
+              <div key={idx} className="professor-question-card">
+                <h3 className="professor-question-title">
+                  {idx + 1}. {questionText}
+                </h3>
+                
+                <div className="professor-rating-breakdown">
+                  {[5, 4, 3, 2, 1].map((ratingValue) => {
                     const count = counts[ratingValue] || 0;
                     const percent = totalResponsesForQuestion
-                    ? ((count / totalResponsesForQuestion) * 100).toFixed(1)
-                    : 0;
+                      ? ((count / totalResponsesForQuestion) * 100).toFixed(1)
+                      : 0;
 
                     return (
-                    <p key={ratingValue}>
-                        {ratingLabels[ratingValue - 1]} ({ratingValue}) - {count} students ({percent}%)
-                    </p>
+                      <div key={ratingValue} className="professor-rating-row">
+                        <div className="professor-rating-label">
+                          <span className="professor-rating-text">
+                            {ratingLabels[ratingValue - 1]} ({ratingValue})
+                          </span>
+                        </div>
+                        <div className="professor-rating-count">
+                          {count} students ({percent}%)
+                        </div>
+                      </div>
                     );
-                })}
+                  })}
                 </div>
+              </div>
             );
-            })}
-        </div>
-      {/* Additional Comments Section */}
-        <div style={{ marginTop: "40px" }}>
-        <h3>Additional Comments</h3>
-        {feedbacks.filter(fb => fb.comment?.trim()).length === 0 ? (
-            <p>No comments submitted.</p>
-        ) : (
-            feedbacks
-            .filter(fb => fb.comment?.trim())
-            .map((fb, index) => (
-                <p key={index}>
-                {index + 1}. {fb.comment}
-                </p>
-            ))
-        )}
+          })}
         </div>
 
+        <div>
+          <h2 className="professor-comments-title">
+            Additional Comments
+          </h2>
+          
+          {feedbacks.filter(fb => fb.comment?.trim()).length === 0 ? (
+            <div className="professor-no-comments">
+              <p className="professor-no-comments-text">
+                No comments submitted.
+              </p>
+            </div>
+          ) : (
+            <div className="professor-comments-list">
+              {feedbacks
+                .filter(fb => fb.comment?.trim())
+                .map((fb, index) => (
+                  <div key={index} className="professor-comment-card">
+                    <div className="professor-comment-content">
+                      <div className="professor-comment-number">
+                        {index + 1}
+                      </div>
+                      <p className="professor-comment-text">
+                        {fb.comment}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

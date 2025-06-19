@@ -9,7 +9,7 @@ import {
   getFeedbackCountForCourseInSection
 } from "../services/courseDataService";
 
-import "../styles/dashboard_style.css"; // reuse student dashboard styles
+import "../styles/professor_dashboard.css";
 import Header from "../components/Header";
 import LoadingComponent from "../components/LoadingComponent";
 
@@ -18,6 +18,7 @@ function ProfessorDashboard() {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState("");
+  const [courseStats, setCourseStats] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,13 +38,12 @@ function ProfessorDashboard() {
         console.log("Number of Unique Sections:", numberOfSections);
         
         const feedbacks = await fetchFeedbacksByProfessorId(professorId);
-
         const stats = calculateProfessorStats(feedbacks);
 
-        //Get the total number of feedbacks received (di na kasama sa frontend)
         console.log("Total Feedbacks Received:", stats.totalFeedbacks); 
-        //Get the Overall Rating of the professor (di na kasama sa frontend)
         console.log("Average Rating:", stats.averageRating);
+        
+        const statsMap = {};
         
         for (const course of coursesHandled) {
           const { courseId, section } = course;
@@ -56,8 +56,15 @@ function ProfessorDashboard() {
           console.log("  👨‍🎓 Students Enrolled from Section:", studentCount);
           console.log("  ⭐ Average Rating (Section):", avgRating);
           console.log("  📝 Feedbacks Submitted (Section):", feedbackCount);
+
+          statsMap[courseId] = {
+            studentCount,
+            avgRating,
+            feedbackCount
+          };
         }
 
+        setCourseStats(statsMap);
         setCourses(coursesHandled);
         setLoading(false);
 
@@ -104,40 +111,47 @@ function ProfessorDashboard() {
         </div>
       </div>
 
-      <div className="student-dashboard">
-        <div className="professor-list">
-          {filteredCourses.map((course) => (
-             <div
-                className="professor-card"
-                key={course.courseId}
-              >
-              <div className="professor-info">
-                <div className="prof-details">
-                  <div className="educator_avatar">
-                    <div className="educator_initials">
-                      {course.courseCode?.slice(0, 2).toUpperCase() || "??"}
-                    </div>
-                  </div>
-                  <div className="name-info">
-                    <div className="educator_name">{course.courseName}</div>
-                    <div className="educator_subject">
-                      {course.courseCode} – Section {course.section}
-                    </div>
+      <div className="professor-courses-grid">
+        {filteredCourses.map((course) => {
+          const stats = courseStats[course.courseId] || {};
+          return (
+            <div className="professor-course-card" key={course.courseId}>
+              <div className="professor-course-header">
+                <div className="professor-course-code">{course.courseCode}</div>
+                <div className="professor-course-name">{course.courseName}</div>
+                <div className="professor-course-section">{course.section}</div>
+              </div>
+              
+              <div className="professor-course-stats">
+                <div className="professor-stat-item">
+                  <div className="professor-stat-label">Students</div>
+                  <div className="professor-stat-value">{stats.studentCount || 0}</div>
+                </div>
+                <div className="professor-stat-item">
+                  <div className="professor-stat-label">Feedback</div>
+                  <div className="professor-stat-value">{stats.feedbackCount || 0}</div>
+                </div>
+                <div className="professor-stat-item">
+                  <div className="professor-stat-label">Avg Rating</div>
+                  <div className="professor-stat-value professor-rating-value">
+                    {stats.avgRating ? stats.avgRating.toFixed(1) : '0.0'} <span className="professor-star">★</span>
                   </div>
                 </div>
               </div>
+
               <button
+                className="professor-view-feedback-btn"
                 onClick={() => handleViewFeedbackStats(course.courseId, course.section)}
               >
-                View Feedback Stats
+                View Feedback
               </button>
             </div>
-          ))}
+          );
+        })}
 
-          {filteredCourses.length === 0 && (
-            <div className="no-results">No matching courses found.</div>
-          )}
-        </div>
+        {filteredCourses.length === 0 && (
+          <div className="professor-no-results">No matching courses found.</div>
+        )}
       </div>
     </div>
   );
